@@ -1,4 +1,3 @@
-HTML
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -125,25 +124,25 @@ HTML
     <div class="form-grid">
       <div>
         <label>고객명 *</label>
-        <input type="text" id="clientName" value="현대자동차(주) 울산공장">
+        <input type="text" id="clientName" value="" placeholder="예: 현대자동차(주) 울산공장">
       </div>
       <div>
         <label>설비명 *</label>
-        <input type="text" id="facilityName" value="가스터빈 발전시설">
+        <input type="text" id="facilityName" value="" placeholder="예: 가스터빈 발전시설">
       </div>
       <div>
-        <label>측정자 (복수 입력 가능) *</label>
-        <input type="text" id="tester" value="김성기, 김한진">
+        <label>측정자 (직급 이름) *</label>
+        <input type="text" id="tester" value="" placeholder="예: 기술자 팀장 김성기">
       </div>
       <div>
-        <label>책임시험원 *</label>
-        <input type="text" id="masterTester" value="이강직 이사">
+        <label>책임시험원 (직급 이름) *</label>
+        <input type="text" id="masterTester" value="" placeholder="예: 기술자 이사 이강직">
       </div>
 
       <div class="col-span-2">
         <label>현장 주소 (카카오 주소 검색)</label>
         <div class="addr-group">
-          <input type="text" id="address" value="울산광역시 북구 염포로 700" readonly onclick="execDaumPostcode()">
+          <input type="text" id="address" value="" placeholder="주소 검색 버튼을 눌러 선택하세요" readonly onclick="execDaumPostcode()">
           <button type="button" class="btn-addr" onclick="execDaumPostcode()">🔍 주소 검색</button>
         </div>
       </div>
@@ -289,21 +288,19 @@ HTML
   }
 
   function generateReport() {
-    const client = document.getElementById('clientName').value;
-    const facility = document.getElementById('facilityName').value;
-    const tester = document.getElementById('tester').value;
-    const master = document.getElementById('masterTester').value;
-    const addr = document.getElementById('address').value;
-    const date = document.getElementById('testDate').value;
+    const client = document.getElementById('clientName').value.trim() || "(고객명 미입력)";
+    const facility = document.getElementById('facilityName').value.trim() || "(설비명 미입력)";
+    const tester = document.getElementById('tester').value.trim() || "(측정자 미입력)";
+    const master = document.getElementById('masterTester').value.trim() || "(책임시험원 미입력)";
+    const addr = document.getElementById('address').value.trim() || "(현장주소 미입력)";
+    const date = document.getElementById('testDate').value.trim();
     const genCap = document.getElementById('genCapacity').value;
 
-    // 입력된 절연저항 행 수집
     const insRows = Array.from(document.querySelectorAll('#insulationTableInput tbody tr')).map(tr => {
       const inputs = tr.querySelectorAll('input, select');
       return { type: inputs[0].value, section: inputs[1].value, limit: inputs[2].value, val: inputs[3].value, note: inputs[4].value };
     });
 
-    // 입력된 접지저항 행 수집 및 자동 판정
     const gndRows = Array.from(document.querySelectorAll('#groundTableInput tbody tr')).map(tr => {
       const inputs = tr.querySelectorAll('input');
       const pos = inputs[0].value;
@@ -360,7 +357,7 @@ HTML
         <p style="font-size:14px; line-height:2.2; margin-bottom:60px;">상기 용역과 관련하여 전력설비 안전진단의 결과를 붙임과 같이 제출 합니다. 끝.</p>
         
         <div style="text-align:center; font-size:14px; line-height:2.0; font-weight:700;">
-          2026년 10월 21일<br><br>
+          ${date.replace(/-/g, '년 ').replace(/-/g, '월 ')}일<br><br>
           (제출자) 상호 : (주)비에스알이앤지<br>
           주소 : 경기도 용인시 기흥구 흥덕1로 13 흥덕IT밸리 B917호<br>
           대표 : 안수련 (인)<br>
@@ -370,7 +367,7 @@ HTML
       <div class="info-box" style="margin-top:auto;">주식회사 비에스알이앤지 | TEL: 070-4348-1170</div>
     `);
 
-    // [페이지 4] 진단 개요 (입력 연동)
+    // [페이지 4] 진단 개요 (입력 연동 반영)
     pages.push(`
       <div class="page-header"><span>2. 진단 개요</span><span>Page 4/8</span></div>
       <h2 class="sec-title">2. 진단 개요</h2>
@@ -388,8 +385,8 @@ HTML
       <table class="rpt-table">
         <thead><tr><th>업무구분</th><th>참여 인력</th><th>참여 기간</th></tr></thead>
         <tbody>
-          <tr><td>총괄책임자</td><td>기술자 이사 ${master}</td><td>${date}</td></tr>
-          <tr><td>현장 진단 (계전기/절연/접지)</td><td>기술자 팀장 ${tester}</td><td>${date}</td></tr>
+          <tr><td>총괄책임자</td><td>${master}</td><td>${date}</td></tr>
+          <tr><td>현장 진단 (계전기/절연/접지)</td><td>${tester}</td><td>${date}</td></tr>
         </tbody>
       </table>
     `);
@@ -423,11 +420,11 @@ HTML
       <div class="sub-title">4.1 절연측정 개요 및 판정 기준</div>
       <div class="info-box">
         • 케이블 및 전기기기에 직류전압을 인가하여 누설전류 및 흡수전류 특성을 측정합니다. 일반적으로 직류전압 인가 후 1분 경과 시의 값을 계측하여 열화 여부를 판단합니다.<br>
-        • <b>최소 절연저항 기준:</b> 고압회로 500 MΩ 이상, 저압회로 0.5~1.0 MΩ 이상 (누설전류 1mA 이하 기준)
+        • <b>최소 절연저항 기준:</b> 특고압/고압회로 500 MΩ 이상, 저압회로 0.5~1.0 MΩ 이상 (누설전류 1mA 이하 기준)
       </div>
     `);
 
-    // [페이지 7] 모선 및 기기 절연저항 측정표 (사용자 입력형 반영)
+    // [페이지 7] 모선 및 기기 절연저항 측정표 (사용자 입력형)
     let insRowsHTML = insRows.map(r => `
       <tr>
         <td><b>${r.type}</b></td>
@@ -454,7 +451,7 @@ HTML
       </div>
     `);
 
-    // [페이지 8] 접지저항 측정 시험 (사용자 입력형 + 자동 적합 판정 반영)
+    // [페이지 8] 접지저항 측정 시험 (사용자 입력형 + 자동 적합 판정)
     let gndRowsHTML = gndRows.map(r => `
       <tr>
         <td class="left">${r.pos}</td>
@@ -468,7 +465,7 @@ HTML
     pages.push(`
       <div class="page-header"><span>5. 접지저항 측정시험</span><span>Page 8/8</span></div>
       <h2 class="sec-title">5. 접지저항 측정 결과 (자동 적합 판정)</h2>
-      <div class="sub-title">측정일자: ${date} / 측정방법: 전위강하법 (CA 6116)</div>
+      <div class="sub-title">측정일자: ${date} / 측정방법: 전위강하법</div>
       <table class="rpt-table">
         <thead><tr><th>접지설비 측정 위치</th><th>접지선 종류</th><th>규정치 [Ω]</th><th>측정치 [Ω]</th><th>판정 결과</th></tr></thead>
         <tbody>
